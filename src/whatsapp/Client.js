@@ -1,4 +1,5 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
+const { guardarPedido } = require("../pedidos");
 const qrcode = require("qrcode-terminal");
 
 const client = new Client({
@@ -27,15 +28,25 @@ client.on("auth_failure", (msg) => {
 });
 
 client.on("message", async (message) => {
+  if (!message.body || message.body.trim() === "") return;
+
   const contact = await message.getContact();
   const chat = await message.getChat();
 
+  const nombreCliente =
+    chat.name || contact.pushname || contact.name || "Sin nombre";
+
   console.log("\n==============================");
   console.log("📦 NUEVO PEDIDO / MENSAJE");
-  console.log("Cliente:", contact.pushname || contact.name || "Sin nombre");
-  console.log("Chat:", chat.name || "Sin nombre");
+  console.log("Cliente:", nombreCliente);
   console.log("Mensaje:", message.body);
   console.log("==============================\n");
+
+  guardarPedido({
+    cliente: nombreCliente,
+    mensaje: message.body,
+    fecha: new Date().toISOString(),
+  });
 });
 
 module.exports = client;
