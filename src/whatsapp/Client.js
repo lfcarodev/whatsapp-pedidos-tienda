@@ -1,7 +1,11 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
-const { guardarPedido } = require("../pedidos");
+const { guardarPedido } = require("../pedidos.js");
 const qrcode = require("qrcode-terminal");
 const clientesEnEspera = new Map();
+const {
+  estructurarPedido,
+  crearTicketVisual,
+} = require("../services/gemini.js");
 
 const client = new Client({
   authStrategy: new LocalAuth(),
@@ -71,20 +75,36 @@ client.on("message", async (message) => {
 
   const datosCliente = clientesEnEspera.get(nombreCliente);
 
-  datosCliente.temporizador = setTimeout(() => {
+  datosCliente.temporizador = setTimeout(async () => {
     const mensajeCompleto = datosCliente.mensajes.join("\n");
 
-    console.log("\n==============================");
-    console.log("📦 PEDIDO AGRUPADO");
-    console.log("Cliente:", nombreCliente);
-    console.log("Mensaje:\n", mensajeCompleto);
-    console.log("==============================\n");
+    console.log(`\n🤖 Analizando el pedido de ${nombreCliente} con Gemini...`);
 
-    guardarPedido({
-      cliente: nombreCliente,
-      mensaje: mensajeCompleto,
-      fecha: new Date().toISOString(),
-    });
+    try {
+      const pedidoEstructurado = await estructurarPedido(mensajeCompleto);
+
+      if (pedidoEstructurado && pedidoEstructurado.es_pedido) {
+        const ticketLindo = crearTicketVisual(
+          pedidoEstructurado,
+          nombreCliente,
+        );
+
+        console.log("\n" + ticketLindo);
+
+        await guardarPedido({
+          cliente: nombreCliente,
+          ticket_impresion: ticketLindo,
+          datos_crudos: pedidoEstructurado,
+          fecha: new Date().toISOString(),
+        });
+      } else {
+        console.log(
+          `ℹ️ El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
+        );
+      }
+    } catch (error) {
+      console.error("❌ Error en el proceso final:", error);
+    }
 
     clientesEnEspera.delete(nombreCliente);
   }, 35000);
