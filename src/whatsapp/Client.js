@@ -37,18 +37,14 @@ client.on("message", async (message) => {
     ahoraEnSegundos - MINUTOS_MAXIMOS_ANTIGUEDAD * 60;
 
   if (message.timestamp < limitePasadoEnSegundos) {
-    console.log(
-      `[⏳] Mensaje antiguo ignorado (Enviado antes de los últimos ${MINUTOS_MAXIMOS_ANTIGUEDAD} minutos)`,
-    );
+    console.log("Mensaje antiguo ignorado");
     return;
   }
 
   const contact = await message.getContact();
   const chat = await message.getChat();
-
   const nombreCliente =
     chat.name || contact.pushname || contact.name || "Sin nombre";
-
   const texto = message.body.trim();
 
   if (clientesEnEspera.has(nombreCliente)) {
