@@ -31,6 +31,15 @@ client.on("auth_failure", (msg) => {
 client.on("message", async (message) => {
   if (!message.body || message.body.trim() === "") return;
 
+  const verifyChatfrom = await message.getChat();
+
+  if (verifyChatfrom.isGroup) {
+    return;
+  }
+  if (verifyChatfrom.id._serialized === "status@broadcast") {
+    return;
+  }
+
   const MINUTOS_MAXIMOS_ANTIGUEDAD = 15;
   const ahoraEnSegundos = Math.floor(Date.now() / 1000);
   const limitePasadoEnSegundos =
