@@ -6,6 +6,7 @@ const {
   estructurarPedido,
   crearTicketVisual,
 } = require("../services/gemini.js");
+const { imprimirTicket } = require("../printer/printer.js");
 
 const client = new Client({
   authStrategy: new LocalAuth(),
@@ -90,6 +91,8 @@ client.on("message", async (message) => {
         );
 
         console.log("\n" + ticketLindo);
+
+        imprimirTicket(ticketLindo);
 
         await guardarPedido({
           cliente: nombreCliente,

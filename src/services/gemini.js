@@ -19,23 +19,22 @@ async function estructurarPedido(textoCliente) {
     Eres el asistente de ventas de una tienda. Tu tarea es leer el mensaje de un cliente y extraer el pedido en un formato JSON estricto.
     
     Reglas:
-    1. Corrige la ortografía de los productos.
-    2. Si el cliente menciona su método de pago, anótalo. Si no, pon "Pendiente".
-    3. Si el mensaje es solo un saludo o una pregunta sin intención de compra, pon "es_pedido": false.
-    4. Si hace saber como quiere algo deja notas (ej: "el cerdo en lonchas pequeñas", "las papas que no sean tan grandes"), ponlo en "notas".
+    1. Si el cliente menciona su método de pago, anótalo. Si no, pon "Pendiente".
+    2. Si el mensaje es solo un saludo o una pregunta sin intención de compra, pon "es_pedido": false.
+    3. Si el cliente pide por valor monetario (ej: '15000 de carne', '1000 de cebollin'), pon el número exacto en 'cantidad' y el producto en 'nombre'.
+    4. Si el cliente especifica tamaños, envases, cortes o marcas (ej: 'pequeño', 'botella', 'en lonchas pequeñas', 'Colgate'), inclúyelos TODOS directamente en el 'nombre'. 
     
-    Estructura JSON obligatoria:
+    Estructura JSON obligatoria (NUNCA agregues un campo de notas):
     {
       "es_pedido": true o false,
       "metodo_pago": "Efectivo" | "Transferencia" | "Pendiente",
       "productos": [
-        { "cantidad": "ej: 1kg, 2, 500g", "nombre": "nombre limpio del producto" }
-      ],
-      "notas": "notas adicionales o preguntas, vacío si no hay"
+        { "cantidad": "ej: 15000, 1 botella, 2, 500g", "nombre": "ej: carne blanda, aceite mediano, tomates, cerdo en lonchas pequeñas" }
+      ]
     }
 
     Mensaje del cliente: "${textoCliente}"
-  `;
+`;
 
   try {
     const result = await model.generateContent(prompt);
@@ -48,24 +47,23 @@ async function estructurarPedido(textoCliente) {
 }
 
 function crearTicketVisual(pedidoJSON, nombreCliente) {
-  let ticket = `============================\n`;
-  ticket += `NUEVO PEDIDO\n`;
-  ticket += `============================\n`;
-  ticket += `Cliente: ${nombreCliente}\n`;
+  let ticket = `Cliente: ${nombreCliente}\n`;
   ticket += `Pago: ${pedidoJSON.metodo_pago}\n`;
   ticket += `----------------------------\n`;
 
   pedidoJSON.productos.forEach((item) => {
-    ticket += `▪ ${item.cantidad} x ${item.nombre}\n`;
+    ticket += `- ${item.cantidad} x ${item.nombre}\n`;
   });
 
-  if (pedidoJSON.notas) {
-    ticket += `----------------------------\n`;
-    ticket += `Notas:\n${pedidoJSON.notas}\n`;
-  }
   ticket += `============================\n`;
 
-  return ticket;
+  let ticketLimpio = ticket
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ñ/gi, "n")
+    .replace(/Ñ/gi, "N");
+
+  return ticketLimpio;
 }
 
 module.exports = {
