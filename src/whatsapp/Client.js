@@ -1,5 +1,5 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
-const { guardarPedido } = require("../pedidos.js");
+//const { guardarPedido } = require("../pedidos.js");
 const qrcode = require("qrcode-terminal");
 const clientesEnEspera = new Map();
 const {
@@ -94,12 +94,12 @@ client.on("message", async (message) => {
 
         imprimirTicket(ticketLindo);
 
-        await guardarPedido({
+        /*await guardarPedido({
           cliente: nombreCliente,
           ticket_impresion: ticketLindo,
           datos_crudos: pedidoEstructurado,
           fecha: new Date().toISOString(),
-        });
+        });*/
       } else {
         console.log(
           `ℹ️ El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
@@ -110,7 +110,7 @@ client.on("message", async (message) => {
     }
 
     clientesEnEspera.delete(nombreCliente);
-  }, 35000);
+  }, 45000);
 });
 
 module.exports = client;
