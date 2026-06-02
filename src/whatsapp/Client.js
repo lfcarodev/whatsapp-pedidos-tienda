@@ -10,6 +10,12 @@ const { imprimirTicket } = require("../printer/printer.js");
 
 const client = new Client({
   authStrategy: new LocalAuth(),
+  puppeteer: {
+    headless: true,
+    executablePath:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
+  },
 });
 
 client.on("loading_screen", (percent, message) => {
