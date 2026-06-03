@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config({ quiet: true });
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const API_KEY = process.env.GEMINI_API_KEY;

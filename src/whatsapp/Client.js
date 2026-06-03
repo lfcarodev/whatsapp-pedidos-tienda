@@ -1,4 +1,5 @@
-const { Client, LocalAuth } = require("whatsapp-web.js");
+//const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, NoAuth } = require("whatsapp-web.js");
 //const { guardarPedido } = require("../pedidos.js");
 const qrcode = require("qrcode-terminal");
 const clientesEnEspera = new Map();
@@ -9,7 +10,8 @@ const {
 const { imprimirTicket } = require("../printer/printer.js");
 
 const client = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new NoAuth(),
+  //authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
     executablePath:
