@@ -4,8 +4,10 @@ function imprimirTicket(textoTicket) {
   const printerPath = "\\\\localhost\\POS80";
 
   try {
+    const comandoLetraGrande = "\x1D\x21\x01";
     const comandoCorte = "\x1D\x56\x00";
-    const ticketCompleto = textoTicket + "\n\n\n\n\n" + comandoCorte;
+    const ticketCompleto =
+      comandoLetraGrande + textoTicket + "\n\n\n\n\n" + comandoCorte;
 
     fs.writeFileSync(printerPath, ticketCompleto, "utf8");
 
