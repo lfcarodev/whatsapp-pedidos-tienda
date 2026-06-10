@@ -64,7 +64,8 @@ cd %USERPROFILE%\Desktop\whatsapp-pedidos-tienda
 
 node --no-deprecation src/app.js
 
-pause```
+pause
+```
 
 8. Ve a Archivo > Guardar como.
 9. En "Tipo", selecciona "Todos los archivos".
