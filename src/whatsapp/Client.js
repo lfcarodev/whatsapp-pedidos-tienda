@@ -42,16 +42,17 @@ client.on("auth_failure", (msg) => {
 });
 
 client.on("message", async (message) => {
+  if (message.from === "status@broadcast" || message.from.endsWith("@g.us")) {
+    return;
+  }
+
   if (!message.body || message.body.trim() === "") return;
 
-  const verifyChatfrom = await message.getChat();
+  console.log(
+    `\n🔔 [ALERTA] Entró un mensaje de ${message.from}. Texto: "${message.body}"`,
+  );
 
-  if (verifyChatfrom.isGroup) {
-    return;
-  }
-  if (verifyChatfrom.id._serialized === "status@broadcast") {
-    return;
-  }
+  const verifyChatfrom = await message.getChat();
 
   const MINUTOS_MAXIMOS_ANTIGUEDAD = 15;
   const ahoraEnSegundos = Math.floor(Date.now() / 1000);
