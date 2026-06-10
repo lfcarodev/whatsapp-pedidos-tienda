@@ -22,7 +22,7 @@ function guardarPedido(pedido) {
   pedidos.push(pedido);
 
   fs.writeFileSync(pedidosPath, JSON.stringify(pedidos, null, 2), "utf8");
-  console.log("💾 Pedido estructurado guardado con éxito en JSON.");
+  console.log(" Pedido estructurado guardado con éxito en JSON.");
 }
 
 module.exports = {

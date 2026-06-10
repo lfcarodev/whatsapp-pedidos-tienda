@@ -36,15 +36,15 @@ client.on("qr", (qr) => {
 });
 
 client.on("authenticated", () => {
-  console.log("🔐 Autenticado correctamente");
+  console.log(" Autenticado correctamente");
 });
 
 client.on("ready", () => {
-  console.log("✅ WhatsApp conectado correctamente");
+  console.log(" WhatsApp conectado correctamente");
 });
 
 client.on("auth_failure", (msg) => {
-  console.error("❌ Falló autenticación:", msg);
+  console.error(" Falló autenticación:", msg);
 });
 
 client.on("message", async (message) => {
@@ -55,7 +55,7 @@ client.on("message", async (message) => {
   if (!message.body || message.body.trim() === "") return;
 
   console.log(
-    `\n🔔 [ALERTA] Entró un mensaje de ${message.from}. Texto: "${message.body}"`,
+    `\n [ALERTA] Entró un mensaje de ${message.from}. Texto: "${message.body}"`,
   );
 
   const verifyChatfrom = await message.getChat();
@@ -94,7 +94,7 @@ client.on("message", async (message) => {
   datosCliente.temporizador = setTimeout(async () => {
     const mensajeCompleto = datosCliente.mensajes.join("\n");
 
-    console.log(`\n🤖 Analizando el pedido de ${nombreCliente} con Gemini...`);
+    console.log(`\n Analizando el pedido de ${nombreCliente} con Gemini...`);
 
     try {
       const pedidoEstructurado = await estructurarPedido(mensajeCompleto);
@@ -109,7 +109,7 @@ client.on("message", async (message) => {
         imprimirTicket(ticketLindo);
       } else {
         console.log(
-          `ℹ️ El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
+          ` El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
         );
       }
     } catch (error) {

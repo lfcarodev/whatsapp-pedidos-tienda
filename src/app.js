@@ -14,26 +14,26 @@ console.log(
 
 rl.on("line", async (input) => {
   if (input.trim().toLowerCase() === "salir") {
-    console.log("\n🛑 Avisándole a WhatsApp que cierre la sesión...");
+    console.log("\n Avisándole a WhatsApp que cierre la sesión...");
 
     if (client) {
       try {
         await client.logout();
 
         console.log(
-          "⏳ Esperando 10 segundos a que los servidores registren la salida...",
+          " Esperando 10 segundos a que los servidores registren la salida...",
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
 
         await client.destroy();
-        console.log("✅ Dispositivo desvinculado de tu celular exitosamente.");
+        console.log(" Dispositivo desvinculado de tu celular exitosamente.");
       } catch (error) {
-        console.error("❌ No se pudo desvincular:", error.message);
+        console.error(" No se pudo desvincular:", error.message);
       }
     }
 
     console.log(
-      "👋 Programa terminado. Ya puedes cerrar esta ventana con la X.",
+      " Programa terminado. Ya puedes cerrar esta ventana con la X.",
     );
     process.exit(0);
   }
