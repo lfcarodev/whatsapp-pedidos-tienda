@@ -1,6 +1,4 @@
-//const { Client, LocalAuth } = require("whatsapp-web.js");
-const { Client, NoAuth } = require("whatsapp-web.js");
-//const { guardarPedido } = require("../pedidos.js");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const clientesEnEspera = new Map();
 const {
@@ -10,13 +8,21 @@ const {
 const { imprimirTicket } = require("../printer/printer.js");
 
 const client = new Client({
-  authStrategy: new NoAuth(),
-  //authStrategy: new LocalAuth(),
+  authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
     executablePath:
       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-extensions",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--disable-gpu",
+    ],
   },
 });
 
@@ -100,15 +106,7 @@ client.on("message", async (message) => {
         );
 
         console.log("\n" + ticketLindo);
-
         imprimirTicket(ticketLindo);
-
-        /*await guardarPedido({
-          cliente: nombreCliente,
-          ticket_impresion: ticketLindo,
-          datos_crudos: pedidoEstructurado,
-          fecha: new Date().toISOString(),
-        });*/
       } else {
         console.log(
           `ℹ️ El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
@@ -119,7 +117,7 @@ client.on("message", async (message) => {
     }
 
     clientesEnEspera.delete(nombreCliente);
-  }, 45000);
+  }, 30000);
 });
 
 module.exports = client;
