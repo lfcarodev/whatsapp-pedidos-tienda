@@ -47,22 +47,24 @@ Antes de instalar, asegúrate de tener en tu máquina:
 
 6. Abre el **Bloc de notas** en tu computadora.
 7. Copia y pega el siguiente código:
-
-   ```bat
-   @echo off
+```bat
+@echo off
 if not "%1"=="max" (
     start "" /max cmd /c "%~f0" max
     exit
 )
+
 title Sistema de Pedidos - WhatsApp
 echo ==========================================
 echo    INICIANDO BOT DE LA TIENDA
 echo ==========================================
 echo.
 cd %USERPROFILE%\Desktop\whatsapp-pedidos-tienda
-node --no-deprecation src/app.js
-pause
 
+node --no-deprecation src/app.js
+
+pause
+```
 
 8. Ve a Archivo > Guardar como.
 9. En "Tipo", selecciona "Todos los archivos".
