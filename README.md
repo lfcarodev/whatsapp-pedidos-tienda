@@ -43,6 +43,36 @@ Antes de instalar, asegúrate de tener en tu máquina:
    GEMINI_API_KEY=tu_clave_secreta_aqui
    \`\`\`
 
+4. **Crear el ejecutable de inicio (.bat)**
+
+1. Abre el **Bloc de notas** en tu computadora.
+2. Copia y pega el siguiente código:
+
+   ```batch
+   @echo off
+if not "%1"=="max" (
+    start "" /max cmd /c "%~f0" max
+    exit
+)
+
+title Sistema de Pedidos - WhatsApp
+echo ==========================================
+echo    INICIANDO BOT DE LA TIENDA
+echo ==========================================
+echo.
+cd %USERPROFILE%\Desktop\whatsapp-pedidos-tienda
+
+node --no-deprecation src/app.js
+
+pause
+
+3. Ve a Archivo > Guardar como.
+4. En "Tipo", selecciona "Todos los archivos".
+5. Ponle de nombre Iniciar_Bot.bat (asegúrate de que termine en .bat y no en .txt).
+6. Guárdalo en escritorio o en la misma ruta donde clonaste el repositorio.
+
+¡Listo! Ahora, cada vez que abras la tienda, solo tienes que hacer doble clic en ese archivo Iniciar_Bot.bat para poner el bot en marcha.
+
 ## Uso del Sistema
 
 Para arrancar el bot en el día a día, simplemente ejecuta el archivo por lotes preparado:
