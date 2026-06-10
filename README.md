@@ -45,8 +45,8 @@ Antes de instalar, asegúrate de tener en tu máquina:
 
 4. **Crear el ejecutable de inicio (.bat)**
 
-1. Abre el **Bloc de notas** en tu computadora.
-2. Copia y pega el siguiente código:
+6. Abre el **Bloc de notas** en tu computadora.
+7. Copia y pega el siguiente código:
 
    ```batch
    @echo off
@@ -64,12 +64,12 @@ cd %USERPROFILE%\Desktop\whatsapp-pedidos-tienda
 
 node --no-deprecation src/app.js
 
-pause
+pause```
 
-3. Ve a Archivo > Guardar como.
-4. En "Tipo", selecciona "Todos los archivos".
-5. Ponle de nombre Iniciar_Bot.bat (asegúrate de que termine en .bat y no en .txt).
-6. Guárdalo en escritorio o en la misma ruta donde clonaste el repositorio.
+8. Ve a Archivo > Guardar como.
+9. En "Tipo", selecciona "Todos los archivos".
+10. Ponle de nombre Iniciar_Bot.bat (asegúrate de que termine en .bat y no en .txt).
+11. Guárdalo en escritorio o en la misma ruta donde clonaste el repositorio.
 
 ¡Listo! Ahora, cada vez que abras la tienda, solo tienes que hacer doble clic en ese archivo Iniciar_Bot.bat para poner el bot en marcha.
 
