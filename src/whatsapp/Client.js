@@ -1,4 +1,6 @@
-const { Client, LocalAuth } = require("whatsapp-web.js");
+//const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, NoAuth } = require("whatsapp-web.js");
+//const { guardarPedido } = require("../pedidos.js");
 const qrcode = require("qrcode-terminal");
 const clientesEnEspera = new Map();
 const {
@@ -8,7 +10,8 @@ const {
 const { imprimirTicket } = require("../printer/printer.js");
 
 const client = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new NoAuth(),
+  //authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
     executablePath:
@@ -55,10 +58,8 @@ client.on("message", async (message) => {
   if (!message.body || message.body.trim() === "") return;
 
   console.log(
-    `\n [ALERTA] Entró un mensaje de ${message.from}. Texto: "${message.body}"`,
+    `\n [ALERTA] Entro un mensaje de ${message.from}. Texto: "${message.body}"`,
   );
-
-  const verifyChatfrom = await message.getChat();
 
   const MINUTOS_MAXIMOS_ANTIGUEDAD = 15;
   const ahoraEnSegundos = Math.floor(Date.now() / 1000);
@@ -106,18 +107,26 @@ client.on("message", async (message) => {
         );
 
         console.log("\n" + ticketLindo);
+
         imprimirTicket(ticketLindo);
+
+        /*await guardarPedido({
+          cliente: nombreCliente,
+          ticket_impresion: ticketLindo,
+          datos_crudos: pedidoEstructurado,
+          fecha: new Date().toISOString(),
+        });*/
       } else {
         console.log(
-          ` El mensaje de ${nombreCliente} no era un pedido o falló el análisis.`,
+          `ℹ El mensaje de ${nombreCliente} no era un pedido.`,
         );
       }
     } catch (error) {
-      console.error("❌ Error en el proceso final:", error);
+      console.error(" Error en el proceso final:", error);
     }
 
     clientesEnEspera.delete(nombreCliente);
-  }, 30000);
+  }, 40000);
 });
 
 module.exports = client;

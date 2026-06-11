@@ -40,7 +40,7 @@ MENSAJE DEL CLIENTE: "${textoCliente}"`;
     const responseText = result.response.text();
     return JSON.parse(responseText);
   } catch (error) {
-    console.error("❌ Error al procesar con Gemini:", error);
+    console.error(" Error al procesar con Gemini:", error);
     return null;
   }
 }

@@ -11,9 +11,9 @@ function imprimirTicket(textoTicket) {
 
     fs.writeFileSync(printerPath, ticketCompleto, "utf8");
 
-    console.log("🖨️  ¡Ticket enviado a la impresora con éxito!");
+    console.log(" ¡Ticket enviado a la impresora con éxito!");
   } catch (error) {
-    console.error("❌ Error al intentar imprimir el ticket:", error.message);
+    console.error(" Error al intentar imprimir el ticket:", error.message);
   }
 }
 

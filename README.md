@@ -27,21 +27,21 @@ Antes de instalar, asegúrate de tener en tu máquina:
 ## Instalación y Configuración
 
 1. **Clonar el repositorio o descargar los archivos:**
-   \`\`\`bash
+   ```bash
    git clone [tu-repositorio]
    cd [nombre-de-tu-carpeta]
-   \`\`\`
+   ```
 
 2. **Instalar las dependencias:**
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. **Configurar Variables de Entorno:**
    Crea un archivo llamado `.env` en la raíz del proyecto y agrega tu clave de Gemini:
-   \`\`\`env
+   ```env
    GEMINI_API_KEY=tu_clave_secreta_aqui
-   \`\`\`
+   ```
 
 4. **Crear el ejecutable de inicio (.bat)**
 
