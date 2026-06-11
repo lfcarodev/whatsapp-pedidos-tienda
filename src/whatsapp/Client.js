@@ -26,7 +26,7 @@ const client = new Client({
       "--disable-gpu",
       "--disable-background-timer-throttling",
       "--disable-backgrounding-occluded-windows",
-      "--disable-renderer-backgrounding"
+      "--disable-renderer-backgrounding",
     ],
   },
 });
@@ -46,6 +46,19 @@ client.on("authenticated", () => {
 
 client.on("ready", () => {
   console.log(" WhatsApp conectado correctamente");
+  setInterval(async () => {
+    try {
+      if (client.pupPage) {
+        await client.pupPage.evaluate(() => {
+          window.scrollTo(0, 1);
+          window.scrollTo(0, 0);
+        });
+        console.log(" Pulso anti-sueño enviado a WhatsApp Web.");
+      }
+    } catch (e) {
+      console.error("Error en el pulso anti-sueño:", e.message);
+    }
+  }, 60000);
 });
 
 client.on("auth_failure", (msg) => {
