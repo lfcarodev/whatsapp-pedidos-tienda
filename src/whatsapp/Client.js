@@ -13,9 +13,8 @@ const client = new Client({
   authStrategy: new NoAuth(),
   //authStrategy: new LocalAuth(),
   puppeteer: {
-    headless: true,
-    executablePath:
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    headless: "shell",
+    //executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -25,6 +24,10 @@ const client = new Client({
       "--no-first-run",
       "--no-zygote",
       "--disable-gpu",
+
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding"
     ],
   },
 });
@@ -117,9 +120,7 @@ client.on("message", async (message) => {
           fecha: new Date().toISOString(),
         });*/
       } else {
-        console.log(
-          `ℹ El mensaje de ${nombreCliente} no era un pedido.`,
-        );
+        console.log(`ℹ El mensaje de ${nombreCliente} no era un pedido.`);
       }
     } catch (error) {
       console.error(" Error en el proceso final:", error);
