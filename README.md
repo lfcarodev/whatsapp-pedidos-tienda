@@ -26,10 +26,10 @@ Antes de instalar, asegúrate de tener en tu máquina:
 
 ## Instalación y Configuración
 
-1. **Clonar el repositorio o descargar los archivos:**
+1. **Clonar el repositorio:**
    ```bash
-   git clone [tu-repositorio]
-   cd [nombre-de-tu-carpeta]
+   git clone [link]
+   cd whatsapp-pedidos-tienda/
    ```
 
 2. **Instalar las dependencias:**
