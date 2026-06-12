@@ -1,7 +1,7 @@
-const client = require("./whatsapp/client");
+const { iniciarBot } = require("./whatsapp/client");
 const readline = require("readline");
 
-client.initialize();
+iniciarBot();
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -9,25 +9,16 @@ const rl = readline.createInterface({
 });
 
 console.log(
-  "\n Escribe la palabra 'salir' y presiona Enter para apagar el bot de forma segura.",
+  "\n========================================================",
+  "\n INICIANDO BOT DE LA TIENDA",
+  "\n========================================================",
+  "\n Escribe la palabra 'salir' y presiona Enter para apagar el bot de forma segura.\n",
 );
 
-rl.on("line", async (input) => {
+rl.on("line", (input) => {
   if (input.trim().toLowerCase() === "salir") {
-    console.log("\n Cerrando el navegador y guardando la sesión local...");
-
-    if (client) {
-      try {
-        await client.destroy();
-        console.log(
-          " Navegador cerrado. La sesión se mantuvo guardada.",
-        );
-      } catch (error) {
-        console.error(" Hubo un problema al cerrar:", error.message);
-      }
-    }
-
-    console.log(" Programa terminado. Ya puedes cerrar esta ventana.");
+    console.log("\n Cerrando la conexión directa con WhatsApp...");
+    console.log(" Programa terminado. Ya puedes cerrar esta terminal.");
     process.exit(0);
   }
 });
