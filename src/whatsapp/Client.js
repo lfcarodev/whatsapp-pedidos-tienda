@@ -2,10 +2,13 @@ const {
   makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
+  jidNormalizedUser,
 } = require("@whiskeysockets/baileys");
 const qrcode = require("qrcode-terminal");
 const pino = require("pino");
 const { Boom } = require("@hapi/boom");
+const fs = require("fs");
+const path = require("path");
 const {
   estructurarPedido,
   crearTicketVisual,
@@ -13,6 +16,70 @@ const {
 const { imprimirTicket } = require("../printer/printer.js");
 
 const clientesEnEspera = new Map();
+
+const pathContactos = path.join(__dirname, "../../contactos.json");
+let contactosGuardados = {};
+
+if (fs.existsSync(pathContactos)) {
+  try {
+    const datosRaw = JSON.parse(fs.readFileSync(pathContactos));
+    for (const key in datosRaw) {
+      if (typeof datosRaw[key] === "string") {
+        contactosGuardados[key] = { nombre: datosRaw[key], origen: "agenda" };
+      } else {
+        contactosGuardados[key] = datosRaw[key];
+      }
+    }
+  } catch (e) {
+    console.error("Error leyendo contactos.json, iniciando vacío", e);
+    contactosGuardados = {};
+  }
+}
+
+function guardarContactos() {
+  fs.writeFileSync(pathContactos, JSON.stringify(contactosGuardados, null, 2));
+}
+
+function registrarNombre(id, nombre, origen = "agenda") {
+  if (!id || !nombre) return false;
+  if (id.endsWith("@g.us") || id === "status@broadcast") return false;
+  if (nombre.startsWith("+") || /^\d+$/.test(nombre.replace(/\s+/g, "")))
+    return false;
+
+  const idLimpio = jidNormalizedUser(id);
+  const registroExistente = contactosGuardados[idLimpio];
+
+  if (registroExistente) {
+    if (registroExistente.origen === "agenda" && origen === "pushName") {
+      return false;
+    }
+    if (
+      registroExistente.nombre === nombre &&
+      registroExistente.origen === origen
+    ) {
+      return false;
+    }
+  }
+
+  contactosGuardados[idLimpio] = { nombre, origen };
+  return true;
+}
+
+function procesarContactos(contacts) {
+  if (!contacts) return;
+  let huboCambios = false;
+
+  for (const contacto of contacts) {
+    const nombreReal = contacto.name || contacto.verifiedName;
+    if (nombreReal) {
+      if (registrarNombre(contacto.id, nombreReal, "agenda"))
+        huboCambios = true;
+      if (contacto.lid && registrarNombre(contacto.lid, nombreReal, "agenda"))
+        huboCambios = true;
+    }
+  }
+  if (huboCambios) guardarContactos();
+}
 
 async function iniciarBot() {
   const { state, saveCreds } = await useMultiFileAuthState("auth_tienda");
@@ -22,9 +89,43 @@ async function iniciarBot() {
     printQRInTerminal: false,
     logger: pino({ level: "silent" }),
     browser: ["Bot de la Tienda", "Chrome", "1.0.0"],
+    syncFullHistory: true,
   });
 
   sock.ev.on("creds.update", saveCreds);
+
+  sock.ev.on("messaging-history.set", ({ chats, contacts }) => {
+    if (contacts) procesarContactos(contacts);
+
+    if (chats) {
+      let huboCambiosChats = false;
+      chats.forEach((ch) => {
+        if (ch.name) {
+          if (registrarNombre(ch.id, ch.name, "agenda"))
+            huboCambiosChats = true;
+          if (ch.lid && registrarNombre(ch.lid, ch.name, "agenda"))
+            huboCambiosChats = true;
+        }
+      });
+      if (huboCambiosChats) guardarContactos();
+    }
+  });
+
+  sock.ev.on("contacts.upsert", (contacts) => {
+    if (contacts) procesarContactos(contacts);
+  });
+
+  sock.ev.on("chats.upsert", (chats) => {
+    let huboCambios = false;
+    chats.forEach((ch) => {
+      if (ch.name) {
+        if (registrarNombre(ch.id, ch.name, "agenda")) huboCambios = true;
+        if (ch.lid && registrarNombre(ch.lid, ch.name, "agenda"))
+          huboCambios = true;
+      }
+    });
+    if (huboCambios) guardarContactos();
+  });
 
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
@@ -39,7 +140,7 @@ async function iniciarBot() {
       const debeReconectarse = codigoError !== DisconnectReason.loggedOut;
 
       console.log(
-        `\n Conexion cerrada, Razon: ${codigoError}. Reconectando: ${debeReconectarse}`,
+        `\n Conexión cerrada. Razón: ${codigoError}. Reconectando: ${debeReconectarse}`,
       );
 
       if (debeReconectarse) {
@@ -59,6 +160,7 @@ async function iniciarBot() {
     if (!msg.message || msg.key.fromMe) return;
 
     const jid = msg.key.remoteJid;
+    const jidLimpio = jidNormalizedUser(jid);
 
     if (jid === "status@broadcast" || jid.endsWith("@g.us")) {
       return;
@@ -87,10 +189,24 @@ async function iniciarBot() {
       return;
     }
 
-    const nombreCliente = msg.pushName || jid.split("@")[0] || "Sin nombre";
+    if (msg.pushName) {
+      if (registrarNombre(jidLimpio, msg.pushName, "pushName")) {
+        guardarContactos();
+      }
+    }
+
+    let nombreCliente = "Sin nombre";
+
+    if (contactosGuardados[jidLimpio]) {
+      nombreCliente = contactosGuardados[jidLimpio].nombre;
+    } else if (msg.pushName) {
+      nombreCliente = msg.pushName;
+    } else {
+      nombreCliente = `+${jidLimpio.split("@")[0]}`;
+    }
 
     console.log(
-      `\n [ALERTA] Entro un mensaje de ${nombreCliente}. Texto: "${texto}"`,
+      `\n [ALERTA] Entró un mensaje de ${nombreCliente}. Texto: "${texto}"`,
     );
 
     if (clientesEnEspera.has(nombreCliente)) {
@@ -119,7 +235,6 @@ async function iniciarBot() {
             pedidoEstructurado,
             nombreCliente,
           );
-
           console.log("\n" + ticketLindo);
           imprimirTicket(ticketLindo);
         } else {
@@ -130,7 +245,7 @@ async function iniciarBot() {
       }
 
       clientesEnEspera.delete(nombreCliente);
-    }, 40000);
+    }, 30000);
   });
 }
 
