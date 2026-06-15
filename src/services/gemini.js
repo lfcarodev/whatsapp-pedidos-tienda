@@ -19,10 +19,11 @@ async function estructurarPedido(textoCliente) {
 
 REGLAS:
 1. "es_pedido": true (si está pidiendo) o false (si es solo saludo/pregunta).
-2. "metodo_pago": Usa "Efectivo", "Transferencia", o "Pendiente" si no lo menciona.
+2. "metodo_pago": Usa "Efectivo", "Transferencia"(Si dice "nequi" o "neki" o "neqi") usar "Transferencia", o "Pendiente" si no lo menciona.
 3. Cantidades monetarias: Si piden por valor (ej. "15000 de carne"), pon "15000" en cantidad y el producto en nombre.
 4. Nombres descriptivos: Une marcas, cortes o tamaños al nombre (ej. "carne blanda en lonchas", "aceite botella mediana").
-5. REGLA DE ORO: Devuelve ÚNICAMENTE el JSON. Cero texto extra, cero explicaciones y NO uses bloques de código con comillas invertidas (\`\`\`json).
+5. Ojo: Cuando el cliente paga en efectivo,se le pregunta de cuanto es el billete, puede responder "de a 20", "billete de 50", o "billete de 20.000", esto NO es un producto.
+6. REGLA DE ORO: Devuelve ÚNICAMENTE el JSON. Cero texto extra, cero explicaciones y NO uses bloques de código con comillas invertidas (\`\`\`json).
 
 ESTRUCTURA EXACTA:
 {

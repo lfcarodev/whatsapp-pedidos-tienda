@@ -1,4 +1,4 @@
-# Bot de Pedidos por WhatsApp
+# Sistema de Automatización de Pedidos
 
 Sistema de automatización de pedidos para tiendas de barrio mediante WhatsApp/WhatsApp Business.
 
