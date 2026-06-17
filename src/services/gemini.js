@@ -9,7 +9,7 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-async function estructurarPedido(textoCliente) {
+async function estructurarPedido(textoCliente, retries = 3) {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash-lite",
     generationConfig: { responseMimeType: "application/json" },
@@ -36,13 +36,29 @@ ESTRUCTURA EXACTA:
 
 MENSAJE DEL CLIENTE: "${textoCliente}"`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    return JSON.parse(responseText);
-  } catch (error) {
-    console.error(" Error al procesar con Gemini:", error);
-    return null;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      return JSON.parse(responseText);
+    } catch (error) {
+      const esSaturacion =
+        error.status === 503 ||
+        (error.message && error.message.includes("503"));
+
+      if (esSaturacion && attempt < retries) {
+        console.log(
+          `\n [⏳] Servidor de Gemini saturado (503). Reintentando en 3 segundos... (Intento ${attempt} de ${retries})`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      } else {
+        console.error(
+          `\n Error definitivo con Gemini después de ${attempt} intentos:`,
+          error.message,
+        );
+        return null;
+      }
+    }
   }
 }
 
