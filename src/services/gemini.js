@@ -9,12 +9,17 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-async function estructurarPedido(textoCliente, retries = 3) {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-lite",
-    generationConfig: { responseMimeType: "application/json" },
-  });
+const modelLite = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash-lite",
+  generationConfig: { responseMimeType: "application/json" },
+});
 
+const modelFlash = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  generationConfig: { responseMimeType: "application/json" },
+});
+
+async function estructurarPedido(textoCliente) {
   const prompt = `Actúa como el sistema automatizado de una tienda. Tu única tarea es convertir el mensaje del cliente en un objeto JSON estricto y válido.
 
 REGLAS:
@@ -36,9 +41,9 @@ ESTRUCTURA EXACTA:
 
 MENSAJE DEL CLIENTE: "${textoCliente}"`;
 
-  for (let attempt = 1; attempt <= retries; attempt++) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const result = await model.generateContent(prompt);
+      const result = await modelLite.generateContent(prompt);
       const responseText = result.response.text();
       return JSON.parse(responseText);
     } catch (error) {
@@ -46,20 +51,49 @@ MENSAJE DEL CLIENTE: "${textoCliente}"`;
         error.status === 503 ||
         (error.message && error.message.includes("503"));
 
-      if (esSaturacion && attempt < retries) {
+      if (esSaturacion && attempt < 3) {
         console.log(
-          `\n [⏳] Servidor de Gemini saturado (503). Reintentando en 3 segundos... (Intento ${attempt} de ${retries})`,
+          `\n Lite saturado (503). Reintentando en 3s... (Intento ${attempt} de 3)`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      } else {
+        console.log(
+          `\n El modelo Lite falló definitivamente tras ${attempt} intentos. Pasando al Plan B...`,
+        );
+        break;
+      }
+    }
+  }
+
+  console.log(
+    `\n Activando modelo Flash (Estándar) para asegurar el pedido...`,
+  );
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const result = await modelFlash.generateContent(prompt);
+      const responseText = result.response.text();
+      return JSON.parse(responseText);
+    } catch (error) {
+      const esSaturacion =
+        error.status === 503 ||
+        (error.message && error.message.includes("503"));
+
+      if (esSaturacion && attempt < 3) {
+        console.log(
+          `\n Flash saturado (503). Reintentando en 3s... (Intento ${attempt} de 3)`,
         );
         await new Promise((resolve) => setTimeout(resolve, 3000));
       } else {
         console.error(
-          `\n Error definitivo con Gemini después de ${attempt} intentos:`,
+          `\n Error crítico: Ambos modelos fallaron. Último error:`,
           error.message,
         );
         return null;
       }
     }
   }
+
+  return null;
 }
 
 function crearTicketVisual(pedidoJSON, nombreCliente) {
